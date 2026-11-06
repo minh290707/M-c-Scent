@@ -287,20 +287,42 @@
 
     <!-- ================= TRANG 2: TRANG SẢN PHẨM ================= -->
     <div id="tab-products" class="tab-content hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div class="mb-8 space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 class="font-serif text-3xl text-moc-brown font-normal">Bộ sưu tập sản phẩm</h2>
           <p class="text-xs text-moc-muted mt-1">Lựa chọn mùi hương phù hợp với tâm trạng của bạn</p>
         </div>
 
-        <div class="flex flex-wrap gap-2 text-xs font-medium">
-          <button onclick="filterCategory('all')" class="cat-filter-btn active bg-moc-brown text-white px-4 py-2 rounded-full transition shadow-sm">Tất cả</button>
-          <button onclick="filterCategory('nenthom')" class="cat-filter-btn text-moc-muted hover:bg-moc-accent/50 px-4 py-2 rounded-full transition">Nến thơm</button>
-          <button onclick="filterCategory('tinhdau')" class="cat-filter-btn text-moc-muted hover:bg-moc-accent/50 px-4 py-2 rounded-full transition">Tinh dầu</button>
-          <button onclick="filterCategory('hopqua')" class="cat-filter-btn text-moc-muted hover:bg-moc-accent/50 px-4 py-2 rounded-full transition">Hộp quà</button>
+        <div class="flex flex-wrap items-center justify-between md:justify-end gap-3">
+          <!-- Các nút tab danh mục chính -->
+          <div class="flex flex-wrap gap-2 text-xs font-medium" id="cat-filter-tabs">
+            <button onclick="filterCategory('all')" class="cat-filter-btn active bg-moc-brown text-white px-4 py-2 rounded-full transition">Tất cả</button>
+            <button onclick="filterCategory('nenthom')" class="cat-filter-btn text-moc-muted hover:bg-moc-accent/50 px-4 py-2 rounded-full border border-moc-border/60 transition">Nến thơm</button>
+            <button onclick="filterCategory('tinhdau')" class="cat-filter-btn text-moc-muted hover:bg-moc-accent/50 px-4 py-2 rounded-full border border-moc-border/60 transition">Tinh dầu</button>
+            <button onclick="filterCategory('hopqua')" class="cat-filter-btn text-moc-muted hover:bg-moc-accent/50 px-4 py-2 rounded-full border border-moc-border/60 transition">Hộp quà</button>
+          </div>
+
+          <!-- Bộ chọn sắp xếp giá -->
+          <div class="flex items-center gap-1.5">
+            <select id="sort-select" onchange="applyAllFilters()" class="text-xs bg-moc-card border border-moc-border/70 rounded-full px-3 py-2 text-moc-brown focus:outline-none focus:border-moc-brown cursor-pointer">
+              <option value="default">Sắp xếp: Mặc định</option>
+              <option value="price-asc">Giá: Thấp đến Cao</option>
+              <option value="price-desc">Giá: Cao đến Thấp</option>
+            </select>
+          </div>
         </div>
       </div>
 
+      <!-- Hàng lọc nhanh theo tông mùi nến thơm (Scale) -->
+      <div id="scent-tag-filters" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 text-[11px]">
+        <span class="text-moc-muted text-[10px] uppercase font-bold tracking-wider mr-1">Tông mùi:</span>
+        <button type="button" onclick="setScentTag('all', this)" class="scent-tag-btn px-3 py-1 rounded-full bg-moc-brown text-white font-medium whitespace-nowrap transition">Tất cả</button>
+        <button type="button" onclick="setScentTag('ngot', this)" class="scent-tag-btn px-3 py-1 rounded-full bg-moc-card text-moc-muted hover:text-moc-brown border border-moc-border/60 whitespace-nowrap transition">Ngọt ngào</button>
+        <button type="button" onclick="setScentTag('tram', this)" class="scent-tag-btn px-3 py-1 rounded-full bg-moc-card text-moc-muted hover:text-moc-brown border border-moc-border/60 whitespace-nowrap transition">Trầm ấm</button>
+        <button type="button" onclick="setScentTag('tuoimat', this)" class="scent-tag-btn px-3 py-1 rounded-full bg-moc-card text-moc-muted hover:text-moc-brown border border-moc-border/60 whitespace-nowrap transition">Tươi mát / Thư giãn</button>
+      </div>
+    </div>
       <!-- Lưới sản phẩm -->
       <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"></div>
     </div>
@@ -591,25 +613,109 @@
   <script>
     const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwomwPjZg4vezO7Q0jXXT-qgM-qKgIWCCT45gHgQ31t8r2rgRszOS5xFhVZzVxIFN_1Vw/exec";
 
-    const productsData = [
-      { id: 1, name: 'Lavender Calm', price: 199000, cat: 'nenthom', img: 'images/nen-lavender.png', fallbackImg: 'lavender.png', desc: 'Thư giãn • Giảm stress' },
-      { id: 2, name: 'Vanilla Dream', price: 199000, cat: 'nenthom', img: 'images/nen-vanilla.png', fallbackImg: 'vanilla.png', desc: 'Ngọt ngào • Ấm áp' },
-      { id: 3, name: 'Citrus Fresh', price: 199000, cat: 'nenthom', img: 'images/nen-citrusfresh.png', fallbackImg: 'citrusfresh.png', desc: 'Tươi mới • Năng lượng' },
-      { id: 4, name: 'Sandalwood', price: 199000, cat: 'nenthom', img: 'images/nen-sandalwood.png', fallbackImg: 'sandalwood.png', desc: 'Trầm ấm • Tĩnh lặng' },
-      { id: 5, name: 'Rose Garden', price: 199000, cat: 'nenthom', img: 'images/nen-rosegarden.png', fallbackImg: 'rosegarden.png', desc: 'Lãng mạn • Dịu nhẹ' },
-      { id: 6, name: 'Green Tea', price: 199000, cat: 'nenthom', img: 'images/nen-greentea1.png', fallbackImg: 'greentea1.png', desc: 'Thanh khiết • Thư thái' },
-      { id: 7, name: 'Ocean Breeze', price: 199000, cat: 'nenthom', img: 'images/nen-ocean.png', fallbackImg: 'ocean.png', desc: 'Tươi mát • Sảng khoái' },
-      { id: 8, name: 'Musk Warmth', price: 199000, cat: 'nenthom', img: 'images/nen-musk1.png', fallbackImg: 'musk1.png', desc: 'Quyến rũ • Ấm áp' },
-      { id: 9, name: 'Earl Grey Tea', price: 199000, cat: 'nenthom', img: 'images/greytea.png', fallbackImg: 'greytea.png', desc: 'Thanh mát • Thư thái' },
-      { id: 10, name: 'Cedarwood Forest', price: 199000, cat: 'nenthom', img: 'images/forest.png', fallbackImg: 'forest.png', desc: 'Trầm ấm • Mộc mạc • Đậm vị rừng sâu' },
-      { id: 11, name: 'Sweet Peach', price: 199000, cat: 'nenthom', img: 'images/peach.png', fallbackImg: 'peach.png', desc: 'Ngọt ngào • Tươi mát' },
-      { id: 12, name: 'Coffee Beans', price: 199000, cat: 'nenthom', img: 'images/coffee.png', fallbackImg: 'coffee.png', desc: 'Thơm đậm • Ấm áp' },
-      { id: 13, name: 'Lemongrass & Tea + Máy xông tinh dầu', price: 129000, cat: 'tinhdau', img: 'images/lemongrass.png', fallbackImg: 'lemongrass.png', desc: 'Thanh mát • Thư thái' },
-      { id: 14, name: 'Lotus & White Musk + Máy xông tinh dầu', price: 129000, cat: 'tinhdau', img: 'images/Lotus.png', fallbackImg: 'Lotus.png', desc: 'Tĩnh lặng • Nhẹ nhàng' },
-      { id: 15, name: 'Hinoki & Bamboo + Máy xông tinh dầu', price: 129000, cat: 'tinhdau', img: 'images/bamboo.png', fallbackImg: 'bamboo.png', desc: 'Mộc mạc • Trong lành' },
-      { id: 16, name: 'Sea salt & Sage + Máy xông tinh dầu', price: 129000, cat: 'tinhdau', img: 'images/sea.png', fallbackImg: 'sea.png', desc: 'Phóng khoáng • Tự do' },
-      { id: 17, name: 'Hộp quà Basic', price: 45000, cat: 'hopqua', img: 'images/hopquabasic.png', fallbackImg: 'hopquabasic.png', desc: 'Đơn giản • Mộc mạc' },
-      { id: 18, name: 'Hộp quà Premium', price: 95000, cat: 'hopqua', img: 'images/premium.png', fallbackImg: 'premium.png', desc: 'Sang trọng • Quý phái' }
+   const productsData = [
+      { 
+        id: 1, name: 'Lavender Calm', price: 199000, cat: 'nenthom', img: 'images/nen-lavender.png', fallbackImg: 'lavender.png', 
+        desc: 'Thư giãn • Giảm stress', 
+        fullDesc: 'Hương thơm dịu nhẹ, thanh khiết từ những cánh đồng hoa oải hương Pháp. Giúp xoa dịu thần kinh, xua tan căng thẳng sau ngày dài làm việc và đưa bạn vào giấc ngủ sâu, an yên.',
+        scale: { sweet: 2, warm: 3, throw: 3 } 
+      },
+      { 
+        id: 2, name: 'Vanilla Dream', price: 199000, cat: 'nenthom', img: 'images/nen-vanilla.png', fallbackImg: 'vanilla.png', 
+        desc: 'Ngọt ngào • Ấm áp', 
+        fullDesc: 'Vị ngọt béo ngậy, ấm áp tựa như những chiếc bánh quy vừa mới ra lò trong chiều đông. Mang lại không gian ấm cúng, ngọt ngào và cảm giác được vỗ về đầy yêu thương.',
+        scale: { sweet: 5, warm: 4, throw: 4 } 
+      },
+      { 
+        id: 3, name: 'Citrus Fresh', price: 199000, cat: 'nenthom', img: 'images/nen-citrusfresh.png', fallbackImg: 'citrusfresh.png', 
+        desc: 'Tươi mới • Năng lượng', 
+        fullDesc: 'Sự bùng nổ tươi mát của cam mọng nước, vỏ chanh vàng và bưởi hồng. Đánh thức mọi giác quan, thanh lọc bầu không khí và tiếp thêm nguồn năng lượng tích cực tức thì.',
+        scale: { sweet: 3, warm: 1, throw: 4 } 
+      },
+      { 
+        id: 4, name: 'Sandalwood', price: 199000, cat: 'nenthom', img: 'images/nen-sandalwood.png', fallbackImg: 'sandalwood.png', 
+        desc: 'Trầm ấm • Tĩnh lặng', 
+        fullDesc: 'Nốt hương gỗ đàn hương trầm ấm, lắng đọng pha chút nét cổ kính. Tạo chiều sâu thanh tịnh cho không gian, rất thích hợp khi thiền định, đọc sách hoặc tĩnh tâm.',
+        scale: { sweet: 1, warm: 5, throw: 3 } 
+      },
+      { 
+        id: 5, name: 'Rose Garden', price: 199000, cat: 'nenthom', img: 'images/nen-rosegarden.png', fallbackImg: 'rosegarden.png', 
+        desc: 'Lãng mạn • Dịu nhẹ', 
+        fullDesc: 'Hương hoa hồng sớm mai còn đọng sương, nồng nàn nhưng không hề gắt gỏng. Gợi mở không gian lãng mạn, thanh lịch và ngập tràn cảm xúc ngọt ngào.',
+        scale: { sweet: 4, warm: 2, throw: 3 } 
+      },
+      { 
+        id: 6, name: 'Green Tea', price: 199000, cat: 'nenthom', img: 'images/nen-greentea1.png', fallbackImg: 'greentea1.png', 
+        desc: 'Thanh khiết • Thư thái', 
+        fullDesc: 'Hương búp trà non xanh mướt hòa quyện nét thanh mát của sương sớm. Đem đến cảm giác nhẹ bẫng, mát mẻ và thanh lọc tâm hồn như đang đứng giữa đồi chè.',
+        scale: { sweet: 1, warm: 2, throw: 2 } 
+      },
+      { 
+        id: 7, name: 'Ocean Breeze', price: 199000, cat: 'nenthom', img: 'images/nen-ocean.png', fallbackImg: 'ocean.png', 
+        desc: 'Tươi mát • Sảng khoái', 
+        fullDesc: 'Hương gió biển lồng lộng mát rượi pha lẫn vị mặn mòi khoáng đạt của muối đại dương. Mang lại cảm giác tự do, phóng khoáng và tràn đầy sức sống.',
+        scale: { sweet: 2, warm: 1, throw: 4 } 
+      },
+      { 
+        id: 8, name: 'Musk Warmth', price: 199000, cat: 'nenthom', img: 'images/nen-musk1.png', fallbackImg: 'musk1.png', 
+        desc: 'Quyến rũ • Ấm áp', 
+        fullDesc: 'Hương xạ hương trầm ấm, quyến rũ vương vấn ôm lấy không gian như chiếc áo len dệt ngày chớm lạnh. Tinh tế, sang trọng và để lại ấn tượng khó quên.',
+        scale: { sweet: 2, warm: 5, throw: 4 } 
+      },
+      { 
+        id: 9, name: 'Earl Grey Tea', price: 199000, cat: 'nenthom', img: 'images/greytea.png', fallbackImg: 'greytea.png', 
+        desc: 'Thanh mát • Thư thái', 
+        fullDesc: 'Sự kết hợp tinh tế giữa trà đen quý phái và tinh dầu cam bergamot nước Anh. Tông vị thanh tao, trang nhã, lý tưởng cho những buổi thưởng trà chiều thư thái.',
+        scale: { sweet: 2, warm: 3, throw: 3 } 
+      },
+      { 
+        id: 10, name: 'Cedarwood Forest', price: 199000, cat: 'nenthom', img: 'images/forest.png', fallbackImg: 'forest.png', 
+        desc: 'Trầm ấm • Mộc mạc • Đậm vị rừng sâu', 
+        fullDesc: 'Hương gỗ tuyết tùng mộc mạc hòa quyện mùi vỏ cây và lá khô ngập tràn không khí rừng thông cổ thụ. Đậm chất thiên nhiên, an tĩnh và vững chãi.',
+        scale: { sweet: 1, warm: 5, throw: 4 } 
+      },
+      { 
+        id: 11, name: 'Sweet Peach', price: 199000, cat: 'nenthom', img: 'images/peach.png', fallbackImg: 'peach.png', 
+        desc: 'Ngọt ngào • Tươi mát', 
+        fullDesc: 'Vị đào chín giòn ngọt thanh, ngập tràn nét tươi trẻ và đáng yêu. Thổi vào căn phòng làn gió ngọt ngào, dịu dàng khiến tâm trạng luôn vui vẻ, rạng rỡ.',
+        scale: { sweet: 5, warm: 2, throw: 4 } 
+      },
+      { 
+        id: 12, name: 'Coffee Beans', price: 199000, cat: 'nenthom', img: 'images/coffee.png', fallbackImg: 'coffee.png', 
+        desc: 'Thơm đậm • Ấm áp', 
+        fullDesc: 'Mùi cà phê rang xay đậm đà nức mũi quyện nốt đắng nhẹ đặc trưng. Kích thích sự tỉnh táo, tăng cường tập trung tối đa khi làm việc và học tập.',
+        scale: { sweet: 3, warm: 5, throw: 5 } 
+      },
+      { 
+        id: 13, name: 'Lemongrass & Tea + Máy xông tinh dầu', price: 129000, cat: 'tinhdau', img: 'images/lemongrass.png', fallbackImg: 'lemongrass.png', 
+        desc: 'Thanh mát • Thư thái',
+        fullDesc: 'Hương sả chanh tươi mát kết hợp trà xanh, hỗ trợ khử mùi, đuổi côn trùng hiệu quả và đem lại không gian thoáng đãng, sạch sẽ.'
+      },
+      { 
+        id: 14, name: 'Lotus & White Musk + Máy xông tinh dầu', price: 129000, cat: 'tinhdau', img: 'images/Lotus.png', fallbackImg: 'Lotus.png', 
+        desc: 'Tĩnh lặng • Nhẹ nhàng',
+        fullDesc: 'Hương hoa sen thuần khiết hòa quyện xạ hương trắng thanh tao, tạo nên cảm giác bình yên, êm dịu cho giấc ngủ.'
+      },
+      { 
+        id: 15, name: 'Hinoki & Bamboo + Máy xông tinh dầu', price: 129000, cat: 'tinhdau', img: 'images/bamboo.png', fallbackImg: 'bamboo.png', 
+        desc: 'Mộc mạc • Trong lành',
+        fullDesc: 'Hương gỗ bách Hinoki Nhật Bản và tre xanh trong lành, mang cả không gian spa thư giãn về ngay góc phòng của bạn.'
+      },
+      { 
+        id: 16, name: 'Sea salt & Sage + Máy xông tinh dầu', price: 129000, cat: 'tinhdau', img: 'images/sea.png', fallbackImg: 'sea.png', 
+        desc: 'Phóng khoáng • Tự do',
+        fullDesc: 'Muối biển khoáng đạt kết hợp thảo mộc xô thơm tạo cảm giác tự do, dễ chịu và thanh lọc năng lượng tiêu cực.'
+      },
+      { 
+        id: 17, name: 'Hộp quà Basic', price: 45000, cat: 'hopqua', img: 'images/hopquabasic.png', fallbackImg: 'hopquabasic.png', 
+        desc: 'Đơn giản • Mộc mạc',
+        fullDesc: 'Hộp giấy kraft mộc mạc, thắt nơ ruy băng thủ công tinh tế kèm thiệp viết tay, thích hợp làm món quà nhỏ chân thành.'
+      },
+      { 
+        id: 18, name: 'Hộp quà Premium', price: 95000, cat: 'hopqua', img: 'images/premium.png', fallbackImg: 'premium.png', 
+        desc: 'Sang trọng • Quý phái',
+        fullDesc: 'Hộp quà bồi cứng cao cấp, đệm lót bảo vệ cẩn thận kèm phụ kiện trang trí sang trọng, nâng tầm trọn vẹn giá trị món quà tặng.'
+      }
     ];
 
     let cart = [];
@@ -636,6 +742,15 @@
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Hàm phụ trợ tạo chuỗi sao (★ / ☆)
+    function renderStars(rating) {
+      let stars = '';
+      for (let i = 1; i <= 5; i++) {
+        stars += i <= rating ? '★' : '☆';
+      }
+      return stars;
     }
 
     // Render danh sách sản phẩm
@@ -668,7 +783,7 @@
               <circle cx="50" cy="50" r="43" stroke="#7a5a49" stroke-width="1" stroke-dasharray="2.5 1.5" />
               <path id="badgePath" d="M 20 46 A 30 30 0 1 1 80 46" fill="none" />
               <text font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#7a5a49" letter-spacing="1.5">
-                <textPath href="#badgePath" startOffset="60%" text-anchor="middle">SIGNATURE</textPath>
+                <textPath href="#badgePath" startOffset="50%" text-anchor="middle">SIGNATURE</textPath>
               </text>
               <text x="50" y="67" text-anchor="middle" font-family="'Dancing Script', cursive" font-size="32" font-weight="700" fill="#5c4033">MW</text>
               <path d="M32 72 Q50 75 68 72" stroke="#5c4033" stroke-width="1.5" stroke-linecap="round" fill="none" />
@@ -682,6 +797,24 @@
             </div>
             <h4 class="font-semibold text-xs sm:text-sm text-moc-brown line-clamp-1">${p.name}</h4>
             <p class="text-[11px] text-moc-muted mt-0.5">${p.desc}</p>
+
+            ${p.scale ? `
+            <!-- Bảng đo lường trực quan 3 mục sao (Vùng khoanh đỏ) -->
+            <div class="mt-2.5 pt-2 border-t border-moc-border/30 text-[10.5px] text-moc-brown/85 space-y-0.5">
+              <div class="flex justify-between items-center">
+                <span class="text-moc-muted text-[10px]">Độ ngọt:</span>
+                <span class="text-[#c49a6c] tracking-widest text-[11px]">${renderStars(p.scale.sweet)}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-moc-muted text-[10px]">Độ trầm ấm:</span>
+                <span class="text-[#c49a6c] tracking-widest text-[11px]">${renderStars(p.scale.warm)}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-moc-muted text-[10px]">Độ nồng tỏa:</span>
+                <span class="text-[#c49a6c] tracking-widest text-[11px]">${renderStars(p.scale.throw)}</span>
+              </div>
+            </div>
+            ` : ''}
           </div>
 
           <div class="mt-3 pt-3 border-t border-moc-border/40 flex items-center justify-between">
@@ -760,14 +893,24 @@
           <span id="modal-product-price" class="text-xl font-bold text-moc-brown">${p.price.toLocaleString('vi-VN')}đ</span>
         </div>
 
+        <!-- KHUNG MÔ TẢ CHI TIẾT SẢN PHẨM Ở DƯỚI GIÁ -->
+        ${p.fullDesc ? `
+        <div class="p-3 bg-white/70 rounded-2xl border border-moc-border/60 text-xs text-moc-brown/90 leading-relaxed font-light text-justify">
+          <span class="block font-semibold text-[10.5px] uppercase tracking-wider text-moc-brown mb-1">Mô tả mùi hương:</span>
+          ${p.fullDesc}
+        </div>
+        ` : ''}
+
         ${optionsHTML}
 
-        <button onclick="addModalItemToCart()" class="w-full bg-moc-brown text-white py-3.5 rounded-full font-medium text-sm transition mt-4 hover:bg-moc-brownDark">
+        <button onclick="addModalItemToCart()" class="w-full bg-moc-brown text-white py-3.5 rounded-full font-medium text-sm transition mt-4 hover:bg-moc-brownDark shadow-md">
           <span id="modal-cart-btn-text">Thêm vào giỏ hàng - ${p.price.toLocaleString('vi-VN')}đ</span>
         </button>
       `;
       document.getElementById('product-detail-modal').classList.remove('hidden');
     }
+
+      
 
     function selectModalOption(btn, opt, price) {
       selectedOption = opt;
@@ -814,16 +957,76 @@
       document.getElementById('product-detail-modal').classList.add('hidden');
     }
 
-    function filterCategory(cat) {
-      document.querySelectorAll('.cat-filter-btn').forEach(btn => {
-        btn.classList.remove('bg-moc-brown', 'text-white');
-        btn.classList.add('text-moc-muted');
-      });
-      event.target.classList.add('bg-moc-brown', 'text-white');
-      event.target.classList.remove('text-moc-muted');
+    let currentCategory = 'all';
+    let currentScentTag = 'all';
 
-      if (cat === 'all') renderProducts(productsData);
-      else renderProducts(productsData.filter(p => p.cat === cat));
+    function filterCategory(cat) {
+      currentCategory = cat;
+
+      // Cập nhật giao diện nút tab danh mục
+      document.querySelectorAll('#cat-filter-tabs .cat-filter-btn').forEach(btn => {
+        btn.className = 'cat-filter-btn text-moc-muted hover:bg-moc-accent/50 px-4 py-2 rounded-full border border-moc-border/60 transition';
+      });
+      if (window.event && window.event.currentTarget) {
+        window.event.currentTarget.className = 'cat-filter-btn active bg-moc-brown text-white px-4 py-2 rounded-full transition';
+      }
+
+      // Ẩn thanh chọn tông mùi nếu người dùng chọn xem Tinh dầu hoặc Hộp quà
+      const scentBox = document.getElementById('scent-tag-filters');
+      if (scentBox) {
+        if (cat === 'tinhdau' || cat === 'hopqua') {
+          scentBox.classList.add('hidden');
+        } else {
+          scentBox.classList.remove('hidden');
+        }
+      }
+
+      applyAllFilters();
+    }
+
+    function setScentTag(tag, el) {
+      currentScentTag = tag;
+
+      // Cập nhật giao diện nút tông mùi
+      document.querySelectorAll('#scent-tag-filters .scent-tag-btn').forEach(btn => {
+        btn.className = 'scent-tag-btn px-3 py-1 rounded-full bg-moc-card text-moc-muted hover:text-moc-brown border border-moc-border/60 whitespace-nowrap transition';
+      });
+      if (el) {
+        el.className = 'scent-tag-btn px-3 py-1 rounded-full bg-moc-brown text-white font-medium whitespace-nowrap transition';
+      }
+
+      applyAllFilters();
+    }
+
+    function applyAllFilters() {
+      let result = [...productsData];
+
+      // 1. Lọc theo danh mục (Tất cả / Nến thơm / Tinh dầu / Hộp quà)
+      if (currentCategory !== 'all') {
+        result = result.filter(item => item.cat === currentCategory);
+      }
+
+      // 2. Lọc theo tông mùi (dựa vào thang điểm sao scale)
+      if (currentScentTag !== 'all') {
+        result = result.filter(item => {
+          if (!item.scale) return false;
+          if (currentScentTag === 'ngot') return item.scale.sweet >= 4;
+          if (currentScentTag === 'tram') return item.scale.warm >= 4;
+          if (currentScentTag === 'tuoimat') return item.scale.sweet <= 3 && item.scale.warm <= 3;
+          return true;
+        });
+      }
+
+      // 3. Sắp xếp giá tiền
+      const sortSelect = document.getElementById('sort-select');
+      const sortVal = sortSelect ? sortSelect.value : 'default';
+      if (sortVal === 'price-asc') {
+        result.sort((a, b) => a.price - b.price);
+      } else if (sortVal === 'price-desc') {
+        result.sort((a, b) => b.price - a.price);
+      }
+
+      renderProducts(result);
     }
 
     function toggleCartDrawer() {
