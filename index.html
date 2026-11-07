@@ -1024,6 +1024,16 @@
     }
 
     function switchTab(tabId) {
+      // Ép buộc chỉ hiển thị khối đổi điểm khi ở trang chủ (home)
+    const redeemSec = document.getElementById('points-redeem-section');
+    if (redeemSec) {
+      if (tabId === 'home') {
+        redeemSec.style.display = 'block';
+        if (typeof updateRedeemPointsUI === 'function') updateRedeemPointsUI();
+      } else {
+        redeemSec.style.display = 'none';
+      }
+    }
       document.querySelectorAll('.tab-content').forEach(sec => sec.classList.add('hidden'));
       const targetTab = document.getElementById('tab-' + tabId);
       if (targetTab) targetTab.classList.remove('hidden');
